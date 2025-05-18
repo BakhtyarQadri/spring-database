@@ -17,7 +17,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>jdbc-api</module>
+        <!-- <module>jdbc-api</module> -->
         <module>jdbc-postgresql</module>
     </modules>
 

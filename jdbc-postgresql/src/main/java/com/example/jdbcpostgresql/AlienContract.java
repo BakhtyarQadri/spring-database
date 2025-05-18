@@ -5,14 +5,19 @@ public interface AlienContract {
     record AddAlienReq(
             String cnic,
             String name,
-            Integer age,
-            Character gender
+            Integer age
     ) {}
 
     record UpdateAlienReq(
             String name,
-            Integer age,
-            Character gender
+            Integer age
+    ) {}
+
+    record AlienResp(
+            Integer id,
+            String cnic,
+            String name,
+            Integer age
     ) {}
 
 }
