@@ -104,8 +104,3 @@ public class AlienController {
     // @PatchMapping
 
 }
-
-@Repository
-class AlienRepo {
-
-}
