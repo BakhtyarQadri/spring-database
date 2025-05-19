@@ -1,7 +1,9 @@
 package com.example.jdbcpostgresql;
 
 import com.example.jdbcpostgresql.AlienContract.*;
-import org.springframework.boot.autoconfigure.jdbc.JdbcClientAutoConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import javax.sql.DataSource;
@@ -13,13 +15,14 @@ import java.util.List;
 @RequestMapping("/api/v1/aliens")
 public class AlienController {
 
-    private final String DB_URL = "jdbc:postgresql://localhost:5432/postgres";
-    private final String USERNAME = "postgres";
-    private final String PASSWORD = "0000";
+    @Autowired
+    @Qualifier("readDataSource")
+    private DataSource readDataSource;
 
-//    private final DataSource readDataSource;
-//    private final DataSource writeDataSource;
-//
+    @Autowired
+    @Qualifier("writeDataSource")
+    private DataSource writeDataSource;
+
 //    public AlienController(DataSource readDataSource, DataSource writeDataSource) {
 //        this.readDataSource = readDataSource;
 //        this.writeDataSource = writeDataSource;
@@ -28,7 +31,7 @@ public class AlienController {
     @PostMapping
     public String addAlien(@RequestBody AddAlienReq reqBody) throws SQLException {
         try(
-                Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+                Connection conn = writeDataSource.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement("INSERT INTO public.aliens (cnic, name, age) VALUES (?, ?, ?)")
         ) {
             pstmt.setString(1, reqBody.cnic());
@@ -42,7 +45,7 @@ public class AlienController {
     @GetMapping
     public List<AlienResp> getAllAliens() throws SQLException {
         try(
-                Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+                Connection conn = readDataSource.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM public.aliens")
         ) {
             ResultSet resultSet = pstmt.executeQuery();
@@ -64,7 +67,7 @@ public class AlienController {
     @PutMapping("/{alienCnic}")
     public String updateAlien(@PathVariable String alienCnic, @RequestBody UpdateAlienReq reqBody) throws SQLException {
         try(
-                Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+                Connection conn = writeDataSource.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement("UPDATE public.aliens SET name=?, age=? WHERE cnic=?")
         ) {
             pstmt.setString(1, reqBody.name());
@@ -78,7 +81,7 @@ public class AlienController {
     @DeleteMapping("/{alienCnic}")
     public String deleteAlienByCnic(@PathVariable String alienCnic) throws SQLException {
         try(
-                Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+                Connection conn = writeDataSource.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement("DELETE FROM public.aliens WHERE cnic=?")
         ) {
             pstmt.setString(1, alienCnic);
@@ -90,7 +93,7 @@ public class AlienController {
     @DeleteMapping
     public String deleteAllAliens() throws SQLException {
         try(
-                Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+                Connection conn = writeDataSource.getConnection(); // DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
                 PreparedStatement pstmt = conn.prepareStatement("DELETE FROM public.aliens;") // TRUNCATE TABLE public.aliens;
         ) {
             Integer affectedRows = pstmt.executeUpdate();
@@ -99,5 +102,10 @@ public class AlienController {
     }
 
     // @PatchMapping
+
+}
+
+@Repository
+class AlienRepo {
 
 }
